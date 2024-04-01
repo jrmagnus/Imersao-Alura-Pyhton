@@ -22,17 +22,6 @@ pd.options.display.float_format = '{:.2f}'.format
 dfs['Principal']['Resultado'] = ['Subiu' if x > 0 else 'Caiu' if x < 0 else 'Sem Variacao' for x in dfs['Principal']['Variacao']]
 dfs['Principal'] = dfs['Principal'].merge(dfs['Ticker'], left_on='Ticker', right_on='Ticker', how='left').copy()
 
-# Function to normalize special characters
-def normalize_special_characters(text):
-    if isinstance(text, str):
-        return ''.join(char if unicodedata.category(char)[0] != 'P' else unicodedata.normalize('NFKD', char).encode('ascii', 'ignore').decode() for char in text)
-    else:
-        return text
-
-# Apply the function to each column in 'Principal' DataFrame
-for column in dfs['Principal'].select_dtypes(include='object').columns:
-    dfs['Principal'][column] = dfs['Principal'][column].apply(normalize_special_characters)
-
 
 conn = sqlite3.connect('acoes.db')
 dfs['Principal'].to_sql('principal_data', conn, index=False, if_exists='replace')
